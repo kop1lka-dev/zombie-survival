@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Forest Survival</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- Прицел -->
+  <div id="crosshair"></div>
+  
+  <!-- Подсказка взаимодействия -->
+  <div id="interactHint">Нажмите [E] чтобы взаимодействовать</div>
+
+  <!-- Верхний левый угол (управление) -->
+  <div id="hud">
+    <b>WASD</b> движение · <b>Пробел</b> прыжок · <b>Shift</b> бег<br>
+    <span class="key">E</span> действие · <span class="key">C</span> крафт · <span class="key">Tab</span> инвентарь · <span class="key">N</span> карта<br>
+    <b>ЛКМ</b> — использовать / атаковать
+  </div>
+
+  <!-- Полоска здоровья -->
+  <div id="stats">
+    <div class="stat-bar" id="hpBar">
+      <i></i>
+      <div class="stat-label">Здоровье</div>
+    </div>
+  </div>
+
+  <!-- Мини-карта и часы -->
+  <div id="minimapBox">
+    <div id="minimapWrap">
+      <canvas id="minimap" width="190" height="190"></canvas>
+      <div class="compass n">С</div>
+      <div class="compass s">Ю</div>
+      <div class="compass w">З</div>
+      <div class="compass e">В</div>
+    </div>
+    <div id="clockBox">
+      <span id="clockIcon">☀️</span>
+      <span id="clockTime">12:00</span>
+      <span id="clockPhase">День</span>
+    </div>
+  </div>
+
+  <!-- Хотбар (быстрые слоты) -->
+  <div id="hotbarWrap"></div>
+
+  <!-- Меню инвентаря -->
+  <div id="invOverlay">
+    <div id="invPanel">
+      <button class="closeBtn" id="invClose">✕</button>
+      <div>
+        <h2>Инвентарь</h2>
+        <div class="sub">Первые 6 слотов — хотбар.</div>
+      </div>
+      <div id="invGrid"></div>
+    </div>
+  </div>
+
+  <!-- Меню крафта -->
+  <div id="craftOverlay">
+    <div id="craftPanel">
+      <button class="closeBtn" id="craftClose">✕</button>
+      <h2>Создание предметов</h2>
+      <div id="recipesList"></div>
+    </div>
+  </div>
+
+  <!-- Полная карта -->
+  <div id="mapOverlay">
+    <div id="mapBox">
+      <canvas id="mapCanvas"></canvas>
+      <div id="mapTitle">Карта леса</div>
+      <div class="compassBig n">С</div>
+      <div class="compassBig s">Ю</div>
+      <div class="compassBig w">З</div>
+      <div class="compassBig e">В</div>
+      <div id="mapHint">ЛКМ — метка · ПКМ по метке — удалить · N / Esc — закрыть</div>
+    </div>
+  </div>
+
+  <!-- Подключаем наш основной скрипт -->
+  <script type="module" src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+/* Базовые настройки */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #e6ece6;
+  user-select: none;
+}
+
+canvas {
+  display: block;
+}
+
+/* ================= HUD ================= */
+#hud {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  background: rgba(15, 20, 18, 0.55);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #cfd8cf;
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  max-width: 320px;
+  z-index: 10;
+}
+
+#hud b {
+  color: #9fe08f;
+  font-weight: 600;
+}
+
+#hud .key {
+  display: inline-block;
+  min-width: 18px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 0 5px;
+  margin: 0 2px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #fff;
+}
+
+/* ================= СТАТУС (Здоровье) ================= */
+#stats {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  z-index: 15;
+}
+
+.stat-bar {
+  width: 200px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.stat-bar > i {
+  display: block;
+  height: 100%;
+  transition: width 0.3s;
+  background: #ff5e5e;
+  width: 100%;
+}
+
+.stat-label {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px #000;
+}
+
+/* ================= МИНИ-КАРТА ================= */
+#minimapBox {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+}
+
+#minimapWrap {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.4);
+  background: rgba(10, 14, 12, 0.6);
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+
+#minimap {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+}
+
+.compass {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 3px #000;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+
+.compass.n { top: 6px; left: 50%; transform: translateX(-50%); color: #ff6b6b; }
+.compass.s { bottom: 6px; left: 50%; transform: translateX(-50%); }
+.compass.w { left: 8px; top: 50%; transform: translateY(-50%); }
+.compass.e { right: 8px; top: 50%; transform: translateY(-50%); }
+
+#clockBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 20, 18, 0.65);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  font-family: 'Consolas', monospace;
+}
+
+#clockIcon { font-size: 15px; }
+#clockTime { font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #eef5ee; }
+#clockPhase { font-size: 10px; color: rgba(200, 220, 200, 0.55); letter-spacing: 1px; text-transform: uppercase; }
+
+/* ================= ХОТБАР ================= */
+#hotbarWrap {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 20, 18, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 15;
+}
+
+.slot {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.slot:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(159, 224, 143, 0.4); }
+.slot.selected { background: rgba(159, 224, 143, 0.12); border-color: #9fe08f; box-shadow: 0 0 12px rgba(159, 224, 143, 0.35); }
+.slot .count { position: absolute; bottom: 3px; right: 5px; font-size: 10px; font-weight: 700; color: #e6ece6; text-shadow: 0 1px 2px #000; }
+.slot .hotkey { position: absolute; top: 2px; left: 4px; font-size: 9px; color: rgba(255, 255, 255, 0.4); font-weight: 600; }
+.slot .bar { position: absolute; bottom: 2px; left: 5px; right: 5px; height: 3px; background: rgba(0, 0, 0, 0.4); border-radius: 2px; overflow: hidden; }
+.slot .bar > i { display: block; height: 100%; background: #ffd166; border-radius: 2px; }
+
+/* ================= ОБЩИЕ ОКНА (Инвентарь, Крафт, Карта) ================= */
+#invOverlay, #craftOverlay, #mapOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 10, 8, 0.85);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+}
+
+#invOverlay.open, #craftOverlay.open, #mapOverlay.open { display: flex; }
+
+#invPanel, #craftPanel, #mapBox {
+  width: min(800px, 95vw);
+  background: linear-gradient(160deg, rgba(24, 34, 28, 0.98), rgba(14, 20, 16, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  padding: 24px 26px 22px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#mapBox { padding: 0; width: auto; }
+#mapCanvas { display: block; cursor: crosshair; border-radius: 20px; }
+
+#invPanel h2, #craftPanel h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #cfe5cf;
+  font-weight: 700;
+}
+
+#invPanel .sub { font-size: 11px; color: rgba(200, 220, 200, 0.5); letter-spacing: 1px; }
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cfd8cf;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover { background: rgba(255, 100, 100, 0.2); color: #fff; }
+
+/* ================= ИНВЕНТАРЬ ================= */
+#invGrid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
+.cell {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  position: relative;
+  cursor: grab;
+  transition: all 0.15s;
+}
+.cell.hotbar-slot { border-color: rgba(159, 224, 143, 0.3); background: rgba(159, 224, 143, 0.05); }
+.cell:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(159, 224, 143, 0.6); }
+.cell.dragover { background: rgba(159, 224, 143, 0.2); border-color: #9fe08f; transform: scale(1.05); }
+.cell.empty { background: rgba(255, 255, 255, 0.02); border-style: dashed; cursor: default; }
+.cell .ic { font-size: 28px; pointer-events: none; }
+.cell .ct { position: absolute; bottom: 3px; right: 5px; font-size: 11px; font-weight: 700; color: #e6ece6; text-shadow: 0 1px 2px #000; pointer-events: none; }
+.cell .slot-num { position: absolute; top: 2px; left: 4px; font-size: 9px; color: rgba(255, 255, 255, 0.3); }
+
+/* ================= КРАФТ ================= */
+#recipesList { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; }
+.recipe {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.2s;
+}
+.recipe-info { display: flex; flex-direction: column; gap: 6px; }
+.recipe-title { font-size: 14px; font-weight: 600; color: #e6ece6; display: flex; align-items: center; gap: 8px; }
+.recipe-cost { font-size: 12px; color: rgba(200, 220, 200, 0.6); display: flex; gap: 12px; }
+.recipe-cost span.ok { color: #9fe08f; }
+.recipe-cost span.no { color: #ff6b6b; }
+.craft-btn {
+  background: rgba(159, 224, 143, 0.15);
+  border: 1px solid #9fe08f;
+  color: #9fe08f;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.craft-btn:hover { background: #9fe08f; color: #000; }
+.craft-btn:disabled { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.2); cursor: not-allowed; }
+
+/* ================= КАРТА ================= */
+#mapTitle { position: absolute; top: 14px; left: 18px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); font-weight: 700; text-shadow: 0 2px 6px #000; pointer-events: none; }
+#mapHint { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); font-size: 12px; color: rgba(220, 230, 220, 0.7); background: rgba(0, 0, 0, 0.5); padding: 6px 14px; border-radius: 8px; pointer-events: none; white-space: nowrap; }
+.compassBig { position: absolute; font-size: 14px; font-weight: 800; color: rgba(255, 255, 255, 0.55); text-shadow: 0 1px 4px #000; pointer-events: none; user-select: none; }
+.compassBig.n { top: 10px; left: 50%; transform: translateX(-50%); color: #ff6b6b; }
+.compassBig.s { bottom: 10px; left: 50%; transform: translateX(-50%); }
+.compassBig.w { left: 12px; top: 50%; transform: translateY(-50%); }
+.compassBig.e { right: 12px; top: 50%; transform: translateY(-50%); }
+
+/* ================= ПРИЦЕЛ ================= */
+#crosshair { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; background: rgba(255, 255, 255, 0.8); border-radius: 50%; pointer-events: none; z-index: 5; box-shadow: 0 0 3px #000; }
+#interactHint { position: fixed; top: 55%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 14px; font-weight: 600; text-shadow: 0 2px 4px #000; pointer-events: none; z-index: 5; display: none; background: rgba(0, 0, 0, 0.5); padding: 4px 10px; border-radius: 4px; }
