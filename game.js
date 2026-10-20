@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 // ==========================================
-// БАЗОВАЯ СЦЕНА
+// 1. БАЗОВАЯ СЦЕНА И СВЕТ
 // ==========================================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a2a2a);
@@ -22,7 +22,7 @@ sun.position.set(80, 120, 40);
 scene.add(sun);
 
 // ==========================================
-// ГЕНЕРАЦИЯ МИРА
+// 2. ГЕНЕРАЦИЯ МИРА
 // ==========================================
 function makeNoise(seed) {
   const p = new Uint8Array(512); let s = seed;
@@ -95,43 +95,30 @@ waterMesh.position.y = -2.5;
 scene.add(waterMesh);
 
 // ==========================================
-// АРОЧНЫЙ МОСТ С ФОНАРЯМИ
+// 3. АРОЧНЫЙ МОСТ
 // ==========================================
 const bridgeGroup = new THREE.Group();
 const bridgeMat = new THREE.MeshStandardMaterial({ color: 0x6b4c30 });
 const railMat = new THREE.MeshStandardMaterial({ color: 0x4a3525 });
-const bridgeZ = 0;
-const bridgeLength = 60;
-const bridgeHeight = 8;
-const bridgeY_base = 0;
+const bridgeZ = 0; const bridgeLength = 60; const bridgeHeight = 8; const bridgeY_base = 0;
 
 for (let i = -bridgeLength/2; i <= bridgeLength/2; i += 1.5) {
   const progress = i / (bridgeLength / 2);
   const archY = bridgeY_base + (1 - progress * progress) * bridgeHeight;
-  
   const plank = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.3, 12), bridgeMat);
-  plank.position.set(i, archY, bridgeZ);
-  plank.rotation.z = -progress * 0.4;
+  plank.position.set(i, archY, bridgeZ); plank.rotation.z = -progress * 0.4;
   bridgeGroup.add(plank);
-  
   if (Math.round(i * 10) % 30 === 0) {
     const poleL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.3), railMat); poleL.position.set(i, archY + 1, bridgeZ - 6); bridgeGroup.add(poleL);
     const poleR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.3), railMat); poleR.position.set(i, archY + 1, bridgeZ + 6); bridgeGroup.add(poleR);
-    const railL = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.2, 0.2), railMat); railL.position.set(i - 0.75, archY + 2, bridgeZ - 6); bridgeGroup.add(railL);
-    const railR = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.2, 0.2), railMat); railR.position.set(i - 0.75, archY + 2, bridgeZ + 6); bridgeGroup.add(railR);
   }
 }
-
-const lampMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-const lightMat = new THREE.MeshBasicMaterial({ color: 0xffdd88 });
+const lampMat = new THREE.MeshStandardMaterial({ color: 0x222222 }); const lightMat = new THREE.MeshBasicMaterial({ color: 0xffdd88 });
 for (let i = -24; i <= 24; i += 12) {
-  const progress = i / (bridgeLength / 2);
-  const archY = bridgeY_base + (1 - progress * progress) * bridgeHeight;
-
+  const progress = i / (bridgeLength / 2); const archY = bridgeY_base + (1 - progress * progress) * bridgeHeight;
   const lampL = new THREE.Mesh(new THREE.SphereGeometry(0.6, 12, 12), lightMat); lampL.position.set(i, archY + 3, bridgeZ - 6); bridgeGroup.add(lampL);
   const poleL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 3, 8), lampMat); poleL.position.set(i, archY + 1.5, bridgeZ - 6); bridgeGroup.add(poleL);
   const lightPointL = new THREE.PointLight(0xffaa55, 2, 25, 2); lightPointL.position.copy(lampL.position); bridgeGroup.add(lightPointL);
-
   const lampR = new THREE.Mesh(new THREE.SphereGeometry(0.6, 12, 12), lightMat); lampR.position.set(i, archY + 3, bridgeZ + 6); bridgeGroup.add(lampR);
   const poleR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 3, 8), lampMat); poleR.position.set(i, archY + 1.5, bridgeZ + 6); bridgeGroup.add(poleR);
   const lightPointR = new THREE.PointLight(0xffaa55, 2, 25, 2); lightPointR.position.copy(lampR.position); bridgeGroup.add(lightPointR);
@@ -139,7 +126,7 @@ for (let i = -24; i <= 24; i += 12) {
 scene.add(bridgeGroup);
 
 // ==========================================
-// РЕСУРСЫ
+// 4. РЕСУРСЫ
 // ==========================================
 const trunkGeo = new THREE.CylinderGeometry(0.4, 0.6, 5, 6); trunkGeo.translate(0, 2.5, 0);
 const crownGeo = new THREE.ConeGeometry(3, 7, 7); crownGeo.translate(0, 8, 0);
@@ -160,41 +147,32 @@ treeData.forEach((t, i) => {
 });
 scene.add(trunkMesh, crownMesh);
 
-const bushes = [];
-const bushGeo = new THREE.DodecahedronGeometry(0.8, 0); const bushMat = new THREE.MeshStandardMaterial({ color: 0x2d5a27 });
+const bushes = []; const bushGeo = new THREE.DodecahedronGeometry(0.8, 0); const bushMat = new THREE.MeshStandardMaterial({ color: 0x2d5a27 });
 for (let i = 0; i < 250; i++) {
   const x = (Math.random() - 0.5) * SIZE * 0.9; const z = (Math.random() - 0.5) * SIZE * 0.9;
   if (swampAt(x, z) > 0.35 || riverAt(x, z) || lakeAt(x, z) || islandAt(x, z)) continue;
   if (Math.abs(z) < 15 && Math.abs(x) < 45) continue;
   const h = heightAt(x, z); if (h < -2 || h > 20) continue;
-  const mesh = new THREE.Mesh(bushGeo, bushMat); mesh.scale.set(1, 0.5, 1); mesh.position.set(x, h, z);
-  scene.add(mesh); bushes.push({ mesh, x, z, hp: 1 });
+  const mesh = new THREE.Mesh(bushGeo, bushMat); mesh.scale.set(1, 0.5, 1); mesh.position.set(x, h, z); scene.add(mesh); bushes.push({ mesh, x, z, hp: 1 });
 }
-
-const rocks = [];
-const rockGeo = new THREE.DodecahedronGeometry(1, 0); const rockMat = new THREE.MeshStandardMaterial({ color: 0x777777, roughness: 0.9 });
+const rocks = []; const rockGeo = new THREE.DodecahedronGeometry(1, 0); const rockMat = new THREE.MeshStandardMaterial({ color: 0x777777, roughness: 0.9 });
 for (let i = 0; i < 200; i++) {
   const x = (Math.random() - 0.5) * SIZE * 0.9; const z = (Math.random() - 0.5) * SIZE * 0.9;
   if (swampAt(x, z) > 0.35 || riverAt(x, z) || lakeAt(x, z) || islandAt(x, z)) continue;
   if (Math.abs(z) < 15 && Math.abs(x) < 45) continue;
   const h = heightAt(x, z); if (h < -2 || h > 25) continue;
   const mesh = new THREE.Mesh(rockGeo, rockMat); const s = 0.5 + Math.random() * 0.8; mesh.scale.set(s, s, s);
-  mesh.position.set(x, h, z); mesh.rotation.set(Math.random(), Math.random(), Math.random());
-  scene.add(mesh); rocks.push({ mesh, x, z, hp: 3 });
+  mesh.position.set(x, h, z); mesh.rotation.set(Math.random(), Math.random(), Math.random()); scene.add(mesh); rocks.push({ mesh, x, z, hp: 3 });
 }
-
-const coalNodes = [];
-const coalGeo = new THREE.DodecahedronGeometry(1.2, 0); const coalMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5 });
+const coalNodes = []; const coalGeo = new THREE.DodecahedronGeometry(1.2, 0); const coalMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5 });
 for (let i = 0; i < 80; i++) {
   const x = (Math.random() - 0.5) * SIZE * 0.9; const z = (Math.random() - 0.5) * SIZE * 0.9;
   if (swampAt(x, z) > 0.35 || riverAt(x, z) || lakeAt(x, z) || islandAt(x, z)) continue;
   if (Math.abs(z) < 15 && Math.abs(x) < 45) continue;
   const h = heightAt(x, z); if (h < -2) continue;
   const mesh = new THREE.Mesh(coalGeo, coalMat); const s = 0.6 + Math.random() * 0.5; mesh.scale.set(s, s, s);
-  mesh.position.set(x, h, z); mesh.rotation.set(Math.random(), Math.random(), Math.random());
-  scene.add(mesh); coalNodes.push({ mesh, x, z, hp: 2 });
+  mesh.position.set(x, h, z); mesh.rotation.set(Math.random(), Math.random(), Math.random()); scene.add(mesh); coalNodes.push({ mesh, x, z, hp: 2 });
 }
-
 const grassCount = 10000; const bladeGeo = new THREE.PlaneGeometry(0.18, 1.4); bladeGeo.translate(0, 0.7, 0);
 const grassMat = new THREE.MeshStandardMaterial({ color: 0x6aa84f, side: THREE.DoubleSide, transparent: true, alphaTest: 0.1 });
 grassMat.onBeforeCompile = (shader) => {
@@ -211,7 +189,7 @@ for (let i = 0; i < grassCount; i++) {
 scene.add(grassMesh);
 
 // ==========================================
-// ХИЖИНЫ И ВЫШКА
+// 5. ХИЖИНЫ И ВЫШКА
 // ==========================================
 const colliders = [];
 const huts = [];
@@ -226,7 +204,6 @@ while (spawnedHuts < 4 && attempts < 100) {
   const x = (Math.random() - 0.5) * SIZE * 0.8; const z = (Math.random() - 0.5) * SIZE * 0.8;
   const h = heightAt(x, z);
   if (riverAt(x, z) || lakeAt(x, z) || h < 0 || h > 20) continue;
-  
   let tooClose = false;
   for (let hut of huts) { if (Math.hypot(hut.x - x, hut.z - z) < 120) { tooClose = true; break; } }
   if (tooClose) continue;
@@ -288,19 +265,15 @@ colliders.push({ x: lakeCenter.x, z: lakeCenter.z, w: 8, d: 8, active: true, isT
 scene.add(towerGroup);
 
 // ==========================================
-// ИГРОК И РУКИ
+// 6. ИГРОК И РУКИ
 // ==========================================
 const player = { x: 0, z: 0, y: 0, yaw: 0, pitch: 0, speed: 8, vy: 0, isGrounded: true, hp: 100, isClimbing: false, armor: 0, air: 100, inWater: false };
 camera.position.set(0, heightAt(0, 0) + 2.2, 0);
 const hpBarFill = document.querySelector('#hpBar > i');
 
-// Добавляем полоску воздуха в HUD
 const statsDiv = document.getElementById('stats');
 const airBarDiv = document.createElement('div');
-airBarDiv.className = 'stat-bar';
-airBarDiv.id = 'airBar';
-airBarDiv.style.marginTop = '10px';
-airBarDiv.style.display = 'none';
+airBarDiv.className = 'stat-bar'; airBarDiv.id = 'airBar'; airBarDiv.style.marginTop = '10px'; airBarDiv.style.display = 'none';
 airBarDiv.innerHTML = '<i style="background:#4fd1ff; width:100%"></i><div class="stat-label">Воздух</div>';
 statsDiv.appendChild(airBarDiv);
 const airBarFill = document.querySelector('#airBar > i');
@@ -341,7 +314,7 @@ const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6, 8
 const gunStock = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.2), new THREE.MeshStandardMaterial({ color: 0x5a3f26 })); gunStock.position.set(0, 0.05, -0.15); gunGroup.add(gunStock);
 
 // ==========================================
-// ВРЕМЯ И БАЗА ДАННЫХ
+// 7. ВРЕМЯ И БАЗА ДАННЫХ
 // ==========================================
 const SECONDS_PER_GAME_HOUR = 10; const DAY_LENGTH = SECONDS_PER_GAME_HOUR * 24; let timeOfDay = 12 * SECONDS_PER_GAME_HOUR;
 function getTimeInfo() { const totalHours = (timeOfDay / SECONDS_PER_GAME_HOUR) % 24; const hours = Math.floor(totalHours); const minutes = Math.floor((totalHours - hours) * 60); return { hours, minutes }; }
@@ -374,13 +347,6 @@ const ITEMS_DB = {
   'Верстак': { icon: '🛠️', desc: 'Ставится на землю. Улучшает оружие.' }
 };
 
-// ==========================================
-// ИНВЕНТАРЬ И РЕЦЕПТЫ
-// ==========================================
-let allSlots = new Array(32).fill(null);
-let currentChestSlots = new Array(27).fill(null);
-let selectedSlot = 0;
-
 const RECIPES = [
   { id: 'axe', name: 'Топор', cost: { 'Дерево': 3, 'Камень': 2 } },
   { id: 'pickaxe', name: 'Кирка', cost: { 'Дерево': 3, 'Камень': 4 } },
@@ -394,6 +360,13 @@ const RECIPES = [
   { id: 'furnace', name: 'Печь', cost: { 'Камень': 20 } }
 ];
 
+// ==========================================
+// 8. UI: ИНВЕНТАРЬ, КРАФТ, СУНДУК
+// ==========================================
+let allSlots = new Array(32).fill(null);
+let currentChestSlots = new Array(27).fill(null);
+let selectedSlot = 0;
+
 const hotbarWrap = document.getElementById('hotbarWrap');
 const invGrid = document.getElementById('invGrid');
 const invOverlay = document.getElementById('invOverlay');
@@ -403,7 +376,6 @@ const craftCloseBtn = document.getElementById('craftClose');
 const recipesList = document.getElementById('recipesList');
 let invOpen = false, craftOpen = false, mapOpen = false;
 
-// --- ВНЕДРЕНИЕ СТИЛЕЙ ---
 const style = document.createElement('style');
 style.innerHTML = `
   .tooltip { position: fixed; background: rgba(10, 15, 12, 0.95); border: 2px solid #555; padding: 8px 12px; border-radius: 6px; pointer-events: none; z-index: 9999; color: #fff; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.8); display: none; flex-direction: column; gap: 4px; max-width: 250px; }
@@ -420,12 +392,13 @@ style.innerHTML = `
   .chest-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
   .chest-cell { width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 22px; position: relative; cursor: grab; transition: 0.15s; }
   .chest-cell:hover { background: rgba(255,255,255,0.1); }
+  .chest-cell:active { cursor: grabbing; }
+  .chest-cell:hover { border-color: rgba(255, 255, 255, 0.3); }
   .chest-cell.dragover { background: rgba(159,224,143,0.3); border-color: #9fe08f; }
   .chest-cell .ct { position: absolute; bottom: 1px; right: 3px; font-size: 10px; font-weight: bold; text-shadow: 0 1px 2px #000; }
 `;
 document.head.appendChild(style);
 
-// --- UI ЭЛЕМЕНТЫ ---
 const chestOverlay = document.createElement('div'); chestOverlay.id = 'chestOverlay';
 chestOverlay.innerHTML = `<div id="chestPanel"><button class="closeBtn" id="chestClose" style="position:absolute; top:16px; right:16px;">✕</button><h2 style="margin:0 0 10px; font-size:16px; letter-spacing:3px; text-transform:uppercase; color:#cfe5cf;">Сундук</h2><div class="chest-split"><div class="chest-col"><h3>Содержимое</h3><div class="chest-grid" id="chestGridLeft"></div></div><div class="chest-col"><h3>Инвентарь</h3><div class="chest-grid" id="chestGridRight"></div></div></div></div>`;
 document.body.appendChild(chestOverlay);
@@ -444,7 +417,6 @@ const benchList = document.getElementById('benchList');
 const furnaceList = document.getElementById('furnaceList');
 const tooltip = document.createElement('div'); tooltip.className = 'tooltip'; document.body.appendChild(tooltip);
 
-// --- ФУНКЦИИ ТУЛТИПОВ И ОТРИСОВКИ ---
 function showTooltip(e, item) {
   if (!item) return;
   const db = ITEMS_DB[item.name] || { desc: 'Нет описания' };
@@ -503,14 +475,36 @@ function renderInvMenu() {
 
 function renderChestMenu() {
   chestGridLeft.innerHTML = ''; chestGridRight.innerHTML = '';
+
+  // --- ЛЕВАЯ КОЛОНКА (СУНДУК) ---
   for (let i = 0; i < 27; i++) {
     const cell = document.createElement('div'); cell.className = 'chest-cell'; const it = currentChestSlots[i];
     if (it) {
       cell.draggable = true; cell.innerHTML = `<div>${it.icon}</div>` + (it.count > 1 ? `<div class="ct">${it.count}</div>` : '');
+      
       cell.addEventListener('mouseenter', (e) => showTooltip(e, it));
       cell.addEventListener('mousemove', (e) => { tooltip.style.left = (e.clientX + 15) + 'px'; tooltip.style.top = (e.clientY + 15) + 'px'; });
       cell.addEventListener('mouseleave', hideTooltip);
       cell.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'chest', index: i })));
+      
+      // БЫСТРЫЙ ПЕРЕНОС (Shift + Клик)
+      cell.addEventListener('click', (e) => {
+        if (e.shiftKey) {
+          // Ищем пустой слот в инвентаре
+          let emptyIdx = allSlots.findIndex(s => s === null);
+          // Или слот с таким же предметом
+          let sameIdx = allSlots.findIndex(s => s && s.name === it.name);
+
+          if (sameIdx !== -1) {
+            allSlots[sameIdx].count += it.count;
+            currentChestSlots[i] = null;
+          } else if (emptyIdx !== -1) {
+            allSlots[emptyIdx] = { ...it };
+            currentChestSlots[i] = null;
+          }
+          renderChestMenu(); renderHotbarHUD(); renderInvMenu(); updateHandsVisibility();
+        }
+      });
     }
     cell.addEventListener('dragover', (e) => { e.preventDefault(); cell.classList.add('dragover'); });
     cell.addEventListener('dragleave', () => cell.classList.remove('dragover'));
@@ -522,14 +516,34 @@ function renderChestMenu() {
     });
     chestGridLeft.appendChild(cell);
   }
+
+  // --- ПРАВАЯ КОЛОНКА (ИНВЕНТАРЬ) ---
   for (let i = 0; i < 27; i++) {
     const cell = document.createElement('div'); cell.className = 'chest-cell'; const it = allSlots[i];
     if (it) {
       cell.draggable = true; cell.innerHTML = `<div>${it.icon}</div>` + (it.count > 1 ? `<div class="ct">${it.count}</div>` : '');
+      
       cell.addEventListener('mouseenter', (e) => showTooltip(e, it));
       cell.addEventListener('mousemove', (e) => { tooltip.style.left = (e.clientX + 15) + 'px'; tooltip.style.top = (e.clientY + 15) + 'px'; });
       cell.addEventListener('mouseleave', hideTooltip);
       cell.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'inv', index: i })));
+      
+      // БЫСТРЫЙ ПЕРЕНОС В СУНДУК (Shift + Клик)
+      cell.addEventListener('click', (e) => {
+        if (e.shiftKey) {
+          let emptyIdx = currentChestSlots.findIndex(s => s === null);
+          let sameIdx = currentChestSlots.findIndex(s => s && s.name === it.name);
+
+          if (sameIdx !== -1) {
+            currentChestSlots[sameIdx].count += it.count;
+            allSlots[i] = null;
+          } else if (emptyIdx !== -1) {
+            currentChestSlots[emptyIdx] = { ...it };
+            allSlots[i] = null;
+          }
+          renderChestMenu(); renderHotbarHUD(); renderInvMenu(); updateHandsVisibility();
+        }
+      });
     }
     cell.addEventListener('dragover', (e) => { e.preventDefault(); cell.classList.add('dragover'); });
     cell.addEventListener('dragleave', () => cell.classList.remove('dragover'));
@@ -572,7 +586,6 @@ function craftItem(id) {
   addItemToInv(recipe.name, ITEMS_DB[recipe.name].icon, 1); renderCraftMenu();
 }
 
-// --- ОКНА ---
 function openInv() { invOpen = true; document.exitPointerLock?.(); invOverlay.classList.add('open'); renderInvMenu(); }
 function closeInv() { invOpen = false; invOverlay.classList.remove('open'); renderHotbarHUD(); updateHandsVisibility(); }
 invCloseBtn.addEventListener('click', closeInv);
@@ -670,9 +683,6 @@ function closeFurnace() { furnaceOverlay.classList.remove('open'); renderHotbarH
 document.getElementById('furnaceClose').addEventListener('click', closeFurnace);
 furnaceOverlay.addEventListener('click', (e) => { if (e.target === furnaceOverlay) closeFurnace(); });
 
-// ==========================================
-// ВИДИМОСТЬ РУК
-// ==========================================
 function updateHandsVisibility() {
   const sel = allSlots[selectedSlot];
   viewmodel.visible = false; flashlightGroup.visible = false; axeGroup.visible = false; pickaxeGroup.visible = false; swordGroup.visible = false; gunGroup.visible = false; flashState.on = false;
@@ -685,7 +695,6 @@ function updateHandsVisibility() {
   else if (sel.name === 'Ружьё') gunGroup.visible = true;
 }
 
-// Начальный инвентарь
 allSlots[0] = { icon: ITEMS_DB['Фонарик'].icon, name: 'Фонарик', count: 1 };
 allSlots[1] = { icon: ITEMS_DB['Топор'].icon, name: 'Топор', count: 1 };
 allSlots[2] = { icon: ITEMS_DB['Ружьё'].icon, name: 'Ружьё', count: 1 };
@@ -694,14 +703,12 @@ allSlots[7] = { icon: ITEMS_DB['Камень'].icon, name: 'Камень', count
 selectSlot(0);
 
 // ==========================================
-// ВЗАИМОДЕЙСТВИЕ И ЗОМБИ
+// 9. МОДЕЛИ ЖИВОТНЫХ И ЗОМБИ
 // ==========================================
 const placedObjects = [];
 function placeObject(itemName) {
   const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
-  const pos = camera.position.clone().add(dir.multiplyScalar(3));
-  pos.y = heightAt(pos.x, pos.z);
-  
+  const pos = camera.position.clone().add(dir.multiplyScalar(3)); pos.y = heightAt(pos.x, pos.z);
   if (itemName === 'Верстак') {
     const bench = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 1), woodDark); bench.position.copy(pos); scene.add(bench);
     placedObjects.push({ type: 'bench', mesh: bench, x: pos.x, z: pos.z });
@@ -712,28 +719,58 @@ function placeObject(itemName) {
 }
 
 const zombies = [];
-const zombieGeo = new THREE.BoxGeometry(0.6, 1.8, 0.6); const zombieMat = new THREE.MeshStandardMaterial({ color: 0x4a7a4a });
+function createZombieModel() {
+  const g = new THREE.Group();
+  const skinMat = new THREE.MeshStandardMaterial({ color: 0x5a7a5a, roughness: 0.8 });
+  const clothMat = new THREE.MeshStandardMaterial({ color: 0x2a3a2a, roughness: 1 });
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.3), clothMat); torso.position.y = 1.1; g.add(torso);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), skinMat); head.position.y = 1.7; g.add(head);
+  const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.7, 6), skinMat); armL.rotation.x = Math.PI / 2; armL.position.set(-0.35, 1.3, -0.3); g.add(armL);
+  const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.7, 6), skinMat); armR.rotation.x = Math.PI / 2; armR.position.set(0.35, 1.3, -0.3); g.add(armR);
+  const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 6), clothMat); legL.position.set(-0.15, 0.4, 0); g.add(legL);
+  const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 6), clothMat); legR.position.set(0.15, 0.4, 0); g.add(legR);
+  return g;
+}
+
 function spawnZombie() {
   const angle = Math.random() * Math.PI * 2; const dist = 30 + Math.random() * 20;
   const zx = player.x + Math.cos(angle) * dist; const zz = player.z + Math.sin(angle) * dist;
   const h = heightAt(zx, zz); if (h < -2) return;
-  const mesh = new THREE.Mesh(zombieGeo, zombieMat); mesh.position.set(zx, h + 0.9, zz);
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshStandardMaterial({ color: 0x7a9a7a })); head.position.y = 1.1; mesh.add(head);
-  scene.add(mesh);
+  const mesh = createZombieModel(); mesh.position.set(zx, h, zz); scene.add(mesh);
   zombies.push({ mesh, x: zx, z: zz, hp: 30, maxHp: 30, speed: 2 + Math.random() * 1.5, walkTime: Math.random() * 10, lastStep: 0 });
 }
 
 const animals = [];
+function createAnimalModel(type) {
+  const g = new THREE.Group();
+  if (type === 'rabbit') {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.5), new THREE.MeshStandardMaterial({ color: 0xcccccc })); body.position.y = 0.2; g.add(body);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0xffffff })); head.position.set(0, 0.35, -0.25); g.add(head);
+  } else if (type === 'moose') {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 1.8), new THREE.MeshStandardMaterial({ color: 0x5a3f26 })); body.position.y = 1.2; g.add(body);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.8), new THREE.MeshStandardMaterial({ color: 0x4a2f16 })); head.position.set(0, 1.6, -1.1); g.add(head);
+    const hornL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.4, 4), new THREE.MeshStandardMaterial({ color: 0xaaaaaa })); hornL.rotation.z = Math.PI / 4; hornL.position.set(-0.3, 1.9, -1.1); g.add(hornL);
+    const hornR = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.4, 4), new THREE.MeshStandardMaterial({ color: 0xaaaaaa })); hornR.rotation.z = -Math.PI / 4; hornR.position.set(0.3, 1.9, -1.1); g.add(hornR);
+  } else if (type === 'bear') {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.4, 2), new THREE.MeshStandardMaterial({ color: 0x2a1a0a })); body.position.y = 1.2; g.add(body);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), new THREE.MeshStandardMaterial({ color: 0x1a0a00 })); head.position.set(0, 1.8, -1); g.add(head);
+    const legFL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8, 6), new THREE.MeshStandardMaterial({ color: 0x2a1a0a })); legFL.position.set(-0.35, 0.4, -0.6); g.add(legFL);
+    const legFR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8, 6), new THREE.MeshStandardMaterial({ color: 0x2a1a0a })); legFR.position.set(0.35, 0.4, -0.6); g.add(legFR);
+    const legBL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8, 6), new THREE.MeshStandardMaterial({ color: 0x2a1a0a })); legBL.position.set(-0.35, 0.4, 0.6); g.add(legBL);
+    const legBR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8, 6), new THREE.MeshStandardMaterial({ color: 0x2a1a0a })); legBR.position.set(0.35, 0.4, 0.6); g.add(legBR);
+  }
+  return g;
+}
+
 function spawnAnimal(type) {
-  let mesh, speed, hp, loot;
-  if (type === 'rabbit') { mesh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.6), new THREE.MeshStandardMaterial({ color: 0xcccccc })); mesh.add(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0xffffff }))); speed = 6; hp = 10; loot = 'Мясо'; }
-  else if (type === 'moose') { mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1.8, 2), new THREE.MeshStandardMaterial({ color: 0x5a3f26 })); mesh.add(new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 1), new THREE.MeshStandardMaterial({ color: 0x4a2f16 }))); speed = 3; hp = 50; loot = 'Кожа'; }
-  else { mesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2, 2.5), new THREE.MeshStandardMaterial({ color: 0x2a1a0a })); mesh.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1.2), new THREE.MeshStandardMaterial({ color: 0x1a0a00 }))); speed = 4; hp = 100; loot = 'Кожа'; }
-  
+  let speed, hp, loot;
+  if (type === 'rabbit') { speed = 6; hp = 10; loot = 'Мясо'; }
+  else if (type === 'moose') { speed = 3; hp = 50; loot = 'Кожа'; }
+  else { speed = 4; hp = 100; loot = 'Кожа'; }
   const angle = Math.random() * Math.PI * 2; const dist = 40 + Math.random() * 20;
   const ax = player.x + Math.cos(angle) * dist; const az = player.z + Math.sin(angle) * dist;
   const h = heightAt(ax, az); if (h < -2) return;
-  mesh.position.set(ax, h + (type === 'rabbit' ? 0.2 : 1), az); scene.add(mesh);
+  const mesh = createAnimalModel(type); mesh.position.set(ax, h, az); scene.add(mesh);
   animals.push({ mesh, type, x: ax, z: az, hp, speed, loot, state: 'idle', timer: 0 });
 }
 
@@ -741,55 +778,95 @@ const raycaster = new THREE.Raycaster(); const centerScreen = new THREE.Vector2(
 const interactHint = document.getElementById('interactHint');
 
 function updateInteractionHint() {
-  if (invOpen || mapOpen || craftOpen || chestOverlay.classList.contains('open') || benchOverlay.classList.contains('open') || furnaceOverlay.classList.contains('open')) { interactHint.style.display = 'none'; return; }
+  if (invOpen || mapOpen || craftOpen || chestOverlay.classList.contains('open') || benchOverlay.classList.contains('open') || furnaceOverlay.classList.contains('open')) { 
+    interactHint.style.display = 'none'; 
+    return; 
+  }
   
   raycaster.setFromCamera(centerScreen, camera);
-  const interactables = [];
-  huts.forEach(h => { interactables.push(h.door); interactables.push(h.chest); });
-  placedObjects.forEach(o => interactables.push(o.mesh));
-  
-  const intersects = raycaster.intersectObjects(interactables);
   let hintText = '';
-  
-  if (intersects.length > 0 && intersects[0].distance < 3.5) {
-    const obj = intersects[0].object;
-    const hut = huts.find(h => h.door === obj || h.chest === obj);
-    const placed = placedObjects.find(o => o.mesh === obj);
-    if (hut) {
-      if (obj === hut.door) hintText = '[E] Открыть/Закрыть дверь';
-      else if (obj === hut.chest) hintText = '[E] Открыть сундук';
-    } else if (placed) {
-      if (placed.type === 'bench') hintText = '[E] Использовать верстак';
-      else if (placed.type === 'furnace') hintText = '[E] Использовать печь';
+
+  // 1. Сначала проверяем сундуки (они важнее)
+  const chestMeshes = huts.map(h => h.chest);
+  const chestHits = raycaster.intersectObjects(chestMeshes, true); // true = проверять дочерние элементы
+  if (chestHits.length > 0 && chestHits[0].distance < 4) {
+    const hut = huts.find(h => chestHits[0].object.parent === h.chest || chestHits[0].object === h.chest);
+    if (hut && !hut.looted) {
+      hintText = '[E] Открыть сундук';
+    } else if (hut && hut.looted) {
+      hintText = 'Сундук пуст';
     }
   }
 
-  const distToTower = Math.hypot(player.x - lakeCenter.x, player.z - lakeCenter.z);
-  if (distToTower < 8 && player.y < 12) { hintText = 'Смотрите на лестницу и жмите [W] чтобы залезть'; }
+  // 2. Если сундук не найден, проверяем двери
+  if (!hintText) {
+    const doorMeshes = huts.map(h => h.door);
+    const doorHits = raycaster.intersectObjects(doorMeshes, true);
+    if (doorHits.length > 0 && doorHits[0].distance < 4) {
+      hintText = '[E] Открыть/Закрыть дверь';
+    }
+  }
 
-  if (hintText) { interactHint.textContent = hintText; interactHint.style.display = 'block'; }
-  else interactHint.style.display = 'none';
+  // 3. Проверяем верстаки и печи
+  if (!hintText) {
+    const placedMeshes = placedObjects.map(o => o.mesh);
+    const placedHits = raycaster.intersectObjects(placedMeshes, true);
+    if (placedHits.length > 0 && placedHits[0].distance < 4) {
+      const placed = placedObjects.find(o => o.mesh === placedHits[0].object || o.mesh.children.includes(placedHits[0].object));
+      if (placed) {
+        if (placed.type === 'bench') hintText = '[E] Использовать верстак';
+        else if (placed.type === 'furnace') hintText = '[E] Использовать печь';
+      }
+    }
+  }
+
+  // 4. Лестница
+  const distToTower = Math.hypot(player.x - lakeCenter.x, player.z - lakeCenter.z);
+  if (distToTower < 8 && player.y < 12) { 
+    hintText = 'Смотрите на лестницу и жмите [W] чтобы залезть'; 
+  }
+
+  if (hintText) { interactHint.textContent = hintText; interactHint.style.display = 'block'; } 
+  else { interactHint.style.display = 'none'; }
 }
 
 function pressE() {
   if (invOpen || mapOpen || craftOpen || chestOverlay.classList.contains('open') || benchOverlay.classList.contains('open') || furnaceOverlay.classList.contains('open')) return;
+  
   raycaster.setFromCamera(centerScreen, camera);
   
-  const interactables = [];
-  huts.forEach(h => { interactables.push(h.door); interactables.push(h.chest); });
-  placedObjects.forEach(o => interactables.push(o.mesh));
-  
-  const intersects = raycaster.intersectObjects(interactables);
-  if (intersects.length > 0 && intersects[0].distance < 3.5) {
-    const obj = intersects[0].object;
-    const hut = huts.find(h => h.door === obj || h.chest === obj);
-    const placed = placedObjects.find(o => o.mesh === obj);
+  // 1. Сундуки
+  const chestMeshes = huts.map(h => h.chest);
+  const chestHits = raycaster.intersectObjects(chestMeshes, true);
+  if (chestHits.length > 0 && chestHits[0].distance < 4) {
+    const hut = huts.find(h => chestHits[0].object.parent === h.chest || chestHits[0].object === h.chest);
     if (hut) {
-      if (obj === hut.door) { hut.doorOpen = !hut.doorOpen; hut.doorCollider.active = !hut.doorOpen; }
-      else if (obj === hut.chest) openChest(hut);
-    } else if (placed) {
+      openChest(hut);
+      return;
+    }
+  }
+
+  // 2. Двери
+  const doorMeshes = huts.map(h => h.door);
+  const doorHits = raycaster.intersectObjects(doorMeshes, true);
+  if (doorHits.length > 0 && doorHits[0].distance < 4) {
+    const hut = huts.find(h => h.door === doorHits[0].object);
+    if (hut) {
+      hut.doorOpen = !hut.doorOpen; 
+      hut.doorCollider.active = !hut.doorOpen;
+      return;
+    }
+  }
+
+  // 3. Верстаки и печи
+  const placedMeshes = placedObjects.map(o => o.mesh);
+  const placedHits = raycaster.intersectObjects(placedMeshes, true);
+  if (placedHits.length > 0 && placedHits[0].distance < 4) {
+    const placed = placedObjects.find(o => o.mesh === placedHits[0].object || o.mesh.children.includes(placedHits[0].object));
+    if (placed) {
       if (placed.type === 'bench') openBench();
       else if (placed.type === 'furnace') openFurnace();
+      return;
     }
   }
 }
@@ -798,12 +875,10 @@ function interact() {
   if (invOpen || mapOpen || craftOpen || chestOverlay.classList.contains('open') || benchOverlay.classList.contains('open') || furnaceOverlay.classList.contains('open')) return;
   raycaster.setFromCamera(centerScreen, camera);
   const sel = allSlots[selectedSlot];
-
   if (sel && (sel.name === 'Верстак' || sel.name === 'Печь')) { placeObject(sel.name); addItemToInv(sel.name, sel.icon, -1); return; }
-
-  const hitZombie = raycaster.intersectObjects(zombies.map(z => z.mesh))[0];
+  const hitZombie = raycaster.intersectObjects(zombies.map(z => z.mesh), true)[0];
   if (hitZombie && hitZombie.distance < 5) {
-    const z = zombies.find(x => x.mesh === hitZombie.object);
+    const z = zombies.find(x => x.mesh === hitZombie.object || x.mesh.children.includes(hitZombie.object));
     if (z && sel) {
       let dmg = 10; if (sel.name === 'Ружьё') dmg = 100; else if (sel.name === 'Улучшенный меч') dmg = 75; else if (sel.name === 'Меч') dmg = 50; else if (sel.name === 'Топор') dmg = 25;
       z.hp -= dmg;
@@ -811,41 +886,28 @@ function interact() {
       return;
     }
   }
-
-  const hitAnimal = raycaster.intersectObjects(animals.map(a => a.mesh))[0];
+  const hitAnimal = raycaster.intersectObjects(animals.map(a => a.mesh), true)[0];
   if (hitAnimal && hitAnimal.distance < 5) {
-    const a = animals.find(x => x.mesh === hitAnimal.object);
+    const a = animals.find(x => x.mesh === hitAnimal.object || x.mesh.children.includes(hitAnimal.object));
     if (a && sel) {
       let dmg = 10; if (sel.name === 'Ружьё') dmg = 100; else if (sel.name === 'Улучшенный меч') dmg = 75; else if (sel.name === 'Меч') dmg = 50; else if (sel.name === 'Топор') dmg = 25;
       a.hp -= dmg;
-      if (a.hp <= 0) { 
-        scene.remove(a.mesh); animals.splice(animals.indexOf(a), 1); 
-        addItemToInv(a.loot, ITEMS_DB[a.loot].icon, 2); 
-        if (a.type !== 'rabbit') addItemToInv('Мясо', ITEMS_DB['Мясо'].icon, 3);
-      }
+      if (a.hp <= 0) { scene.remove(a.mesh); animals.splice(animals.indexOf(a), 1); addItemToInv(a.loot, ITEMS_DB[a.loot].icon, 2); if (a.type !== 'rabbit') addItemToInv('Мясо', ITEMS_DB['Мясо'].icon, 3); }
       return;
     }
   }
-
   const hitBush = raycaster.intersectObjects(bushes.map(b => b.mesh))[0];
   if (hitBush && hitBush.distance < 3.5) { const b = bushes.find(x => x.mesh === hitBush.object); if (b) { scene.remove(b.mesh); bushes.splice(bushes.indexOf(b), 1); addItemToInv('Волокно', ITEMS_DB['Волокно'].icon, 1 + Math.floor(Math.random() * 2)); return; } }
-
   const hitCoal = raycaster.intersectObjects(coalNodes.map(c => c.mesh))[0];
   if (hitCoal && hitCoal.distance < 4) {
     const c = coalNodes.find(x => x.mesh === hitCoal.object);
-    if (c && sel && sel.name === 'Кирка') {
-      c.hp -= 1;
-      if (c.hp <= 0) { scene.remove(c.mesh); coalNodes.splice(coalNodes.indexOf(c), 1); addItemToInv('Уголь', ITEMS_DB['Уголь'].icon, 2); }
-      return;
-    }
+    if (c && sel && sel.name === 'Кирка') { c.hp -= 1; if (c.hp <= 0) { scene.remove(c.mesh); coalNodes.splice(coalNodes.indexOf(c), 1); addItemToInv('Уголь', ITEMS_DB['Уголь'].icon, 2); } return; }
   }
-
   const hitRock = raycaster.intersectObjects(rocks.map(r => r.mesh))[0];
   if (hitRock && hitRock.distance < 4) {
     const r = rocks.find(x => x.mesh === hitRock.object);
     if (r) { if (sel && (sel.name === 'Кирка' || sel.name === 'Топор')) { r.hp -= 1; if (r.hp <= 0) { scene.remove(r.mesh); rocks.splice(rocks.indexOf(r), 1); addItemToInv('Камень', ITEMS_DB['Камень'].icon, 2); } } return; }
   }
-
   if (sel && sel.name === 'Топор') {
     const camDir = new THREE.Vector3(); camera.getWorldDirection(camDir); const targetPos = camera.position.clone().add(camDir.multiplyScalar(2));
     for (let t of treeData) {
@@ -866,7 +928,7 @@ function addItemToInv(name, icon, count) {
 }
 
 // ==========================================
-// ФИЗИКА
+// 10. ФИЗИКА И УПРАВЛЕНИЕ
 // ==========================================
 function resolveCollisions(nx, nz) {
   const pRadius = 0.8; let rx = nx, rz = nz;
@@ -880,7 +942,25 @@ function resolveCollisions(nx, nz) {
 }
 
 const keys = {};
+// --- УПРАВЛЕНИЕ МЫШЬЮ ---
+renderer.domElement.addEventListener('mousedown', (e) => {
+  if (e.button === 0 && !mapOpen && !invOpen && !craftOpen && !chestOverlay.classList.contains('open') && !benchOverlay.classList.contains('open') && !furnaceOverlay.classList.contains('open')) {
+    if (document.pointerLockElement !== renderer.domElement) {
+      renderer.domElement.requestPointerLock(); 
+    } else {
+      interact(); 
+    }
+  }
+});
 
+window.addEventListener('mousemove', (e) => { 
+  if (document.pointerLockElement === renderer.domElement) { 
+    player.yaw -= e.movementX * 0.002; 
+    player.pitch -= e.movementY * 0.002; 
+    player.pitch = Math.max(-1.4, Math.min(1.4, player.pitch)); 
+  } 
+});
+// -------------------------
 window.addEventListener('keydown', (e) => {
   keys[e.code] = true;
   if (e.code === 'KeyE') pressE();
@@ -894,7 +974,7 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => keys[e.code] = false);
 
 renderer.domElement.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && !mapOpen && !invOpen && !craftOpen && !chestOverlay.classList.contains('open') && !benchOverlay.classList.contains('open') && !furnaceOverlay.classList.contains('open')) {
+  if (e.button === 0 && !mapOpen && !invOpen && !craftOpen && !chestOverlay.classList.contains('open') && !benchOverlay.classList.contains('open') && !furnaceOverlay.classList.contains('open') && !isPaused) {
     if (document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock(); else interact();
   }
 });
@@ -903,7 +983,7 @@ window.addEventListener('mousemove', (e) => { if (document.pointerLockElement ==
 renderHotbarHUD();
 
 // ==========================================
-// КАРТА
+// 11. МИНИ-КАРТА И ПОЛНАЯ КАРТА
 // ==========================================
 const mini = document.getElementById('minimap'); const miniCtx = mini.getContext('2d'); const MINI_SIZE = mini.width, MINI_RANGE = 180;
 let markers = []; try { const saved = localStorage.getItem('forestMarkers'); if (saved) markers = JSON.parse(saved); } catch (e) {}
@@ -933,32 +1013,14 @@ function drawMinimap() {
   }
   miniCtx.putImageData(img, 0, 0);
   miniCtx.fillStyle = 'rgba(18,44,18,0.8)';
-  for (const t of treeData) {
-    if (t.hp <= 0) continue;
-    const dx = t.x - player.x, dz = t.z - player.z;
-    if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue;
-    miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2), cy + dz / MINI_RANGE * (h / 2), 1.5, 1.5);
-  }
+  for (const t of treeData) { if (t.hp <= 0) continue; const dx = t.x - player.x, dz = t.z - player.z; if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue; miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2), cy + dz / MINI_RANGE * (h / 2), 1.5, 1.5); }
   miniCtx.fillStyle = '#ff9f43';
-  for (const h of huts) {
-    const dx = h.x - player.x, dz = h.z - player.z;
-    if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue;
-    miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2) - 2, cy + dz / MINI_RANGE * (h / 2) - 2, 4, 4);
-  }
+  for (const h of huts) { const dx = h.x - player.x, dz = h.z - player.z; if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue; miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2) - 2, cy + dz / MINI_RANGE * (h / 2) - 2, 4, 4); }
   miniCtx.fillStyle = '#ff0000';
-  for (const z of zombies) {
-    const dx = z.mesh.position.x - player.x, dz = z.mesh.position.z - player.z;
-    if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue;
-    miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2) - 1.5, cy + dz / MINI_RANGE * (h / 2) - 1.5, 3, 3);
-  }
+  for (const z of zombies) { const dx = z.mesh.position.x - player.x, dz = z.mesh.position.z - player.z; if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue; miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2) - 1.5, cy + dz / MINI_RANGE * (h / 2) - 1.5, 3, 3); }
   miniCtx.fillStyle = '#00ff00';
-  for (const a of animals) {
-    const dx = a.mesh.position.x - player.x, dz = a.mesh.position.z - player.z;
-    if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue;
-    miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2) - 1.5, cy + dz / MINI_RANGE * (h / 2) - 1.5, 3, 3);
-  }
-  const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw);
-  const a = Math.atan2(fx, -fz);
+  for (const a of animals) { const dx = a.mesh.position.x - player.x, dz = a.mesh.position.z - player.z; if (Math.abs(dx) > MINI_RANGE || Math.abs(dz) > MINI_RANGE) continue; miniCtx.fillRect(cx + dx / MINI_RANGE * (w / 2) - 1.5, cy + dz / MINI_RANGE * (h / 2) - 1.5, 3, 3); }
+  const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), a = Math.atan2(fx, -fz);
   miniCtx.save(); miniCtx.translate(cx, cy); miniCtx.rotate(a);
   miniCtx.fillStyle = '#4fd1ff'; miniCtx.strokeStyle = '#001018'; miniCtx.lineWidth = 1.5;
   miniCtx.beginPath(); miniCtx.moveTo(0, -8); miniCtx.lineTo(5.5, 6); miniCtx.lineTo(0, 3); miniCtx.lineTo(-5.5, 6); miniCtx.closePath();
@@ -1041,7 +1103,7 @@ mapCanvas.addEventListener('mousedown', (e) => {
 function saveMarkers() { try { localStorage.setItem('forestMarkers', JSON.stringify(markers)); } catch (e) {} }
 
 // ==========================================
-// ЦИКЛ
+// 12. ЦИКЛ ИГРЫ (RENDER LOOP)
 // ==========================================
 const clock = new THREE.Clock();
 let miniTimer = 0, bobT = 0, hintTimer = 0, spawnTimer = 0, animalTimer = 0;
@@ -1074,6 +1136,7 @@ function updateDayNight(dt) {
 
 function animate() {
   requestAnimationFrame(animate);
+
   const dt = Math.min(clock.getDelta(), 0.05); const t = clock.elapsedTime;
   const locked = !mapOpen && !invOpen && !craftOpen && !chestOverlay.classList.contains('open') && !benchOverlay.classList.contains('open') && !furnaceOverlay.classList.contains('open');
 
@@ -1090,7 +1153,7 @@ function animate() {
     } else {
       if (forward !== 0 || strafe !== 0) {
         moving = true;
-        const sp = player.speed * (keys['ShiftLeft'] ? 1.8 : 1) * (player.inWater ? 0.5 : 1); // Замедление в воде
+        const sp = player.speed * (keys['ShiftLeft'] ? 1.8 : 1) * (player.inWater ? 0.5 : 1);
         const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw);
         const dx = fx * forward + rx * strafe, dz = fz * forward + rz * strafe, l = Math.hypot(dx, dz) || 1;
         const targetX = player.x + (dx / l) * sp * dt; const targetZ = player.z + (dz / l) * sp * dt;
@@ -1099,24 +1162,13 @@ function animate() {
       }
     }
 
-    // Проверка на мост
     const isOnBridge = Math.abs(player.z - bridgeZ) < 6 && Math.abs(player.x) < bridgeLength / 2;
     let groundY;
-    if (isOnBridge) {
-      // Высота на мосту
-      const progress = player.x / (bridgeLength / 2);
-      groundY = bridgeY_base + (1 - progress * progress) * bridgeHeight + 2.2;
-    } else {
-      groundY = heightAt(player.x, player.z) + 2.2;
-    }
+    if (isOnBridge) { const progress = player.x / (bridgeLength / 2); groundY = bridgeY_base + (1 - progress * progress) * bridgeHeight + 2.2; }
+    else { groundY = heightAt(player.x, player.z) + 2.2; }
 
-    // Проверка на воду
-    if (groundY < -2.5 + 2.2) {
-      player.inWater = true;
-      groundY = -2.5 + 2.2; // Плаваем на поверхности
-    } else {
-      player.inWater = false;
-    }
+    if (groundY < -2.5 + 2.2) { player.inWater = true; groundY = -2.5 + 2.2; }
+    else { player.inWater = false; }
 
     if (keys['Space'] && player.isGrounded && !player.inWater) { player.vy = 10; player.isGrounded = false; }
     if (!player.isGrounded) {
@@ -1124,17 +1176,12 @@ function animate() {
       if (player.y <= groundY) { player.y = groundY; player.vy = 0; player.isGrounded = true; }
     } else { player.y = groundY; }
 
-    // Кислород
     if (player.inWater) {
-      airBarDiv.style.display = 'block';
-      player.air -= 10 * dt;
+      airBarDiv.style.display = 'block'; player.air -= 10 * dt;
       if (player.air <= 0) { player.air = 0; player.hp -= 10 * dt; }
       airBarFill.style.width = player.air + '%';
       if (player.hp <= 0) { player.hp = 100; player.air = 100; player.x = 0; player.z = 0; }
-    } else {
-      airBarDiv.style.display = 'none';
-      player.air = Math.min(100, player.air + 20 * dt);
-    }
+    } else { airBarDiv.style.display = 'none'; player.air = Math.min(100, player.air + 20 * dt); }
     hpBarFill.style.width = player.hp + '%';
 
     camera.position.set(player.x, player.y, player.z);
@@ -1143,30 +1190,29 @@ function animate() {
     if (grassMat.userData.shader) grassMat.userData.shader.uniforms.uTime.value = t;
     const day = updateDayNight(dt);
 
-    // Зомби
     spawnTimer += dt; const maxZombies = day < 0.3 ? 15 : 5;
     if (spawnTimer > (day < 0.3 ? 4 : 10) && zombies.length < maxZombies) { spawnTimer = 0; spawnZombie(); }
     for (let i = zombies.length - 1; i >= 0; i--) {
       const z = zombies[i]; const dx = player.x - z.mesh.position.x, dz = player.z - z.mesh.position.z; const dist = Math.hypot(dx, dz);
       if (dist < 2) {
-        player.hp -= (10 - player.armor) * dt; if (player.hp < 0) player.hp = 0; hpBarFill.style.width = player.hp + '%';
-        if (player.hp <= 0) { player.hp = 100; hpBarFill.style.width = '100%'; player.x = 0; player.z = 0; }
+        player.hp -= (10 - player.armor) * dt; if (player.hp < 0) player.hp = 0;
+        if (player.hp <= 0) { player.hp = 100; player.x = 0; player.z = 0; }
       } else if (dist < 40) {
         const move = z.speed * dt; const newX = z.mesh.position.x + (dx / dist) * move, newZ = z.mesh.position.z + (dz / dist) * move;
         let blocked = false;
         for(let col of colliders) { if(col.active === false) continue; if (newX > col.x - col.w/2 - 0.4 && newX < col.x + col.w/2 + 0.4 && newZ > col.z - col.d/2 - 0.4 && newZ < col.z + col.d/2 + 0.4) blocked = true; }
         if(!blocked) { z.mesh.position.x = newX; z.mesh.position.z = newZ; }
-        z.mesh.position.y = heightAt(z.mesh.position.x, z.mesh.position.z) + 0.9; z.mesh.lookAt(player.x, z.mesh.position.y, player.z);
-        z.walkTime += dt * z.speed; z.mesh.rotation.x = Math.sin(z.walkTime * 5) * 0.15;
+        z.mesh.position.y = heightAt(z.mesh.position.x, z.mesh.position.z) + 0.1; z.mesh.lookAt(player.x, z.mesh.position.y, player.z);
+        z.walkTime += dt * z.speed; 
+        z.mesh.children[3].rotation.x = Math.sin(z.walkTime * 5) * 0.5;
+        z.mesh.children[4].rotation.x = -Math.sin(z.walkTime * 5) * 0.5;
       }
     }
 
-    // Животные
     animalTimer += dt;
     if (animalTimer > 15 && animals.length < 10) { animalTimer = 0; const types = ['rabbit', 'moose', 'bear']; spawnAnimal(types[Math.floor(Math.random()*types.length)]); }
     for (let i = animals.length - 1; i >= 0; i--) {
       const a = animals[i]; const dx = player.x - a.mesh.position.x, dz = player.z - a.mesh.position.z; const dist = Math.hypot(dx, dz);
-      
       a.timer -= dt;
       if (a.type === 'bear' && dist < 15) a.state = 'chase';
       else if (a.type !== 'bear' && dist < 10) a.state = 'flee';
@@ -1180,17 +1226,13 @@ function animate() {
         const dirZ = (a.state === 'chase' ? dz / dist : -dz / dist) * speed * dt;
         a.mesh.position.x += dirX; a.mesh.position.z += dirZ;
         a.mesh.lookAt(player.x, a.mesh.position.y, player.z);
-        a.mesh.position.y = heightAt(a.mesh.position.x, a.mesh.position.z) + (a.type === 'rabbit' ? 0.2 : 1);
+        a.mesh.position.y = heightAt(a.mesh.position.x, a.mesh.position.z);
         a.mesh.rotation.x = Math.sin(t * 10) * 0.1;
-        if (a.type === 'bear' && dist < 2.5) { player.hp -= 15 * dt; hpBarFill.style.width = Math.max(0, player.hp) + '%'; }
+        if (a.type === 'bear' && dist < 2.5) { player.hp -= 15 * dt; }
       }
     }
 
-    // Анимация дверей
-    huts.forEach(hut => {
-      const targetRot = hut.doorOpen ? -Math.PI / 2 : 0;
-      hut.door.rotation.y += (targetRot - hut.door.rotation.y) * Math.min(1, dt * 10);
-    });
+    huts.forEach(hut => { const targetRot = hut.doorOpen ? -Math.PI / 2 : 0; hut.door.rotation.y += (targetRot - hut.door.rotation.y) * Math.min(1, dt * 10); });
 
     if (viewmodel.visible) {
       bobT += dt * (moving ? (keys['ShiftLeft'] ? 12 : 8) : 2);
